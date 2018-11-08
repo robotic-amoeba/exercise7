@@ -34,18 +34,18 @@ services:
 
   mongodb_credit:
     image: mongo
-    command: mongod --port 27017    
+    command: mongod --port 27018    
     volumes:
       - ./credit/data/db:/credit/data/db
     ports:
-      - 27017:27017
+      - 27018:27018
   replica_credit:
     image: mongo
-    command: mongod --port 27018    
+    command: mongod --port 27019    
     volumes:
       - ./credit/data/replica:/credit/data/replica
     ports:
-      - 27018:27018
+      - 27019:27019
 
   mongodb_message:
     image: mongo
