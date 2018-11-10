@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const { Validator, ValidationError } = require("express-json-validator-middleware");
 
-const requestQueue = require("./src/requestQueue");
+const requestQueue = require("./src/controllers/requestQueue");
 const getMessages = require("./src/controllers/getMessages");
 const getStatus = require("./src/controllers/getStatus");
 

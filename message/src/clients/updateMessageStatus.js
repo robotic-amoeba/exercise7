@@ -2,6 +2,8 @@ const Message = require("../models/message");
 const updateCreditTransaction = require("../transactions/updateCredit");
 const saveMessageTransaction = require("../transactions/saveMessage");
 
+debugger;
+
 module.exports = function(requestID, status, cb) {
   console.log("entraaaa")
   return Message()

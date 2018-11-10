@@ -1,5 +1,5 @@
 const express = require("express");
-const requestsWorker = require("./src/requestsWorker")
+const requestsWorker = require("./src/controllers/requestsWorker")
 
 const bodyParser = require("body-parser");
 const {

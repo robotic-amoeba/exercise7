@@ -1,4 +1,4 @@
-const http = require("http");
+/* const http = require("http");
 const saveMessage = require("../clients/saveMessage");
 const updateStatus = require("../clients/updateMessageStatus");
 const getCredit = require("../clients/getCredit");
@@ -26,9 +26,9 @@ module.exports = function(httpbody) {
       }
     );
 
-    current_credit = credit[0].amount;
+   
 
-    if (current_credit > 0) {
+    if (true) {
       const postOptions = {
         // host: "exercise4_messageapp_1",
         // host: "messageapp",
@@ -83,3 +83,4 @@ module.exports = function(httpbody) {
     }
   });
 };
+ */

@@ -1,6 +1,7 @@
 const database = require("../database");
 const Message = require("../models/message");
 const { cleanClone } = require("../utils");
+const debug = require("debug")("debug:saveMessageTransaction");
 
 function saveMessageReplica(replica, retries) {
   if (retries > 0) {
@@ -24,7 +25,7 @@ function saveMessageTransaction(newValue) {
   const MessageReplica = Message("replica");
 
   let message = new MessagePrimary(newValue);
-
+  debug("message at transaction: ", message);
   return message
     .save()
     .then(doc => {
