@@ -2,16 +2,11 @@ const http = require("http");
 const express = require("express");
 
 const bodyParser = require("body-parser");
-const {
-  Validator,
-  ValidationError
-} = require("express-json-validator-middleware");
+const { Validator, ValidationError } = require("express-json-validator-middleware");
 
-const sendMessage = require("./src/controllers/sendMessage");
-const redisQueue = require("./src/redisQueue");
+const requestQueue = require("./src/requestQueue");
 const getMessages = require("./src/controllers/getMessages");
-const getStatus = require("./src/controllers/getStatus")
-const updateCredit = require("./src/controllers/updateCredit");
+const getStatus = require("./src/controllers/getStatus");
 
 const app = express();
 
@@ -39,34 +34,9 @@ const messageSchema = {
   }
 };
 
-const creditSchema = {
-  type: "object",
-  required: ["amount"],
-  properties: {
-    location: {
-      type: "string"
-    },
-    amount: {
-      type: "number"
-    }
-  }
-};
+const requestWorker = require("./src/worker");
 
-const worker = require("./src/worker")
-
-app.post(
-  "/messages",
-  bodyParser.json(),
-  validate({ body: messageSchema }),
-  redisQueue
-);
-
-app.post(
-  "/credit",
-  bodyParser.json(),
-  validate({ body: creditSchema }),
-  updateCredit
-);
+app.post("/messages", bodyParser.json(), validate({ body: messageSchema }), requestQueue);
 
 app.get("/messages", getMessages);
 
