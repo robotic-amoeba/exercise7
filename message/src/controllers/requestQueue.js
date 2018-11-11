@@ -30,6 +30,7 @@ module.exports = (req, res) => {
         );
     })
     .catch(e => {
+      debug("error while trying to add a job to the queue: requestsQueue");
       console.log(e);
     });
 };

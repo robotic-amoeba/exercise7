@@ -1,10 +1,9 @@
 const updateCreditTransaction = require("../transactions/updateCredit");
 const getCredit = require("./getCredit");
 const debug = require("debug")("debug:chargeMessage");
-const addToProcessedQueue = require("../processedQueue");
+const addToProcessedQueue = require("../controllers/processedQueue");
 
 module.exports = function(message) {
-  console.log("MESSAGE: ", message);
   const query = getCredit();
 
   query.exec(function(err, credit) {
@@ -18,7 +17,6 @@ module.exports = function(message) {
 
     if (current_credit > 0) {
       debug(`Found credit (${credit}) in the if statatement`);
-      const messageCost = 1;
       updateCreditTransaction(
         {
           amount: { $gte: 1 },

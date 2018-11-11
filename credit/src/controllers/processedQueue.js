@@ -9,6 +9,7 @@ module.exports = message => {
       debug("Request processed at credit and added to the queue: ", job.data);
     })
     .catch(e => {
+      debug("error while trying to add a job to the queue: processedQueue");
       console.log(e);
     });
 };

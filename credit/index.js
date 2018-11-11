@@ -1,11 +1,9 @@
 const express = require("express");
-const requestsWorker = require("./src/controllers/requestsWorker")
+const requestsWorker = require("./src/controllers/requestsWorker");
+const rollbackWorker = require("./src/controllers/rollbackWorker")
 
 const bodyParser = require("body-parser");
-const {
-  Validator,
-  ValidationError
-} = require("express-json-validator-middleware");
+const { Validator, ValidationError } = require("express-json-validator-middleware");
 
 const updateCredit = require("./src/controllers/updateCredit");
 
@@ -27,24 +25,17 @@ const creditSchema = {
   }
 };
 
+app.post("/credit", bodyParser.json(), validate({ body: creditSchema }), updateCredit);
 
-app.post(
-  "/credit",
-  bodyParser.json(),
-  validate({ body: creditSchema }),
-  updateCredit
-  );
-  
-  app.use(function(err, req, res, next) {
-    console.log(res.body);
-    if (err instanceof ValidationError) {
-      res.sendStatus(400);
-    } else {
-      res.sendStatus(500);
-    }
-  });
-  
-  app.listen(9006, function() {
-    console.log("App started on PORT 9006");
-  });
-  
+app.use(function(err, req, res, next) {
+  console.log(res.body);
+  if (err instanceof ValidationError) {
+    res.sendStatus(400);
+  } else {
+    res.sendStatus(500);
+  }
+});
+
+app.listen(9006, function() {
+  console.log("App started on PORT 9006");
+});
