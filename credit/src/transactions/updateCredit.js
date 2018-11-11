@@ -1,6 +1,7 @@
 const database = require("../database");
 const Credit = require("../models/credit");
 const { cleanClone } = require("../utils");
+const debug = require("debug")("debug:updateCredit");
 
 function updateCredit(creditModel, conditions, newValue) {
   return creditModel.findOneAndUpdate(conditions, newValue, {
@@ -19,6 +20,7 @@ function updateCreditTransaction(conditions, newValue) {
   return Promise.resolve(CreditPrimary.findOne(conditions))
     .then(doc => {
       oldValue = doc;
+      debug("Old value for credit was: ", doc);
     })
     .then(() => {
       return updateCredit(CreditPrimary, conditions, newValue).then(doc => {
@@ -54,13 +56,13 @@ function updateCreditTransaction(conditions, newValue) {
 
 module.exports = function(conditions, newValue, cb) {
   if (database.isReplicaOn()) {
-    updateCreditTransaction(conditions, newValue)
+    return updateCreditTransaction(conditions, newValue)
       .then(doc => cb(doc))
       .catch(err => {
         cb(undefined, err);
       });
   } else {
-    updateCredit(Credit(), conditions, newValue)
+    return updateCredit(Credit(), conditions, newValue)
       .then(doc => {
         console.log("Credit updated successfully", doc);
         cb(doc);

@@ -1,41 +1,51 @@
-const updatecredit = require("./chargeMessage");
 const updateCreditTransaction = require("../transactions/updateCredit");
 const getCredit = require("./getCredit");
+const debug = require("debug")("debug:chargeMessage");
+const addToProcessedQueue = require("../processedQueue");
 
-module.exports = function() {
-  if (getCredit().amount > 0) {
-    updateCreditTransaction(
-      {
-        amount: { $gte: 1 },
-        location: message.location.name
-      },
-      {
-        $inc: { amount: -message.location.cost }
-      },
-      function(doc, error) {
-        if (error) {
-          return cb(undefined, error);
-        } else if (doc == undefined) {
-          let error = "Not enough credit";
-          status = "NO CREDIT";
-          console.log(error);
-          cb(undefined, error);
+module.exports = function(message) {
+  console.log("MESSAGE: ", message);
+  const query = getCredit();
+
+  query.exec(function(err, credit) {
+    if (err) return console.log(err);
+
+    current_credit = credit[0].amount;
+
+    if (message.location === undefined) {
+      message.location = { name: "Default", cost: 1 };
+    }
+
+    if (current_credit > 0) {
+      debug(`Found credit (${credit}) in the if statatement`);
+      const messageCost = 1;
+      updateCreditTransaction(
+        {
+          amount: { $gte: 1 },
+          location: message.location.name
+        },
+        {
+          $inc: { amount: -message.location.cost }
+        },
+        function(doc, error) {
+          if (error) {
+            return cb(undefined, error);
+          } else if (doc == undefined) {
+            let error = "Not enough credit";
+            message.staus = "NO CREDIT";
+            console.log(error);
+            cb(undefined, error);
+          }
         }
-      }
-    )
-    .then(()=>{
-      const status = "NO CREDIT";
-      updateStatus(requestID, status, function(_result, error) {
-        console.log(error);
+      ).then(() => {
+        message.status = "PAYED";
+        addToProcessedQueue(message);
       });
-
-    })
-  } else {
-    //guardar mensaje con no credito
-    //lanzar evento de no credito
-    const status = "NO CREDIT";
-    updateStatus(requestID, status, function(_result, error) {
-      console.log(error);
-    });
-  }
+    } else {
+      debug("Found not enough credit in the if statement: ", credit);
+      //THROW EVENT TO WARN MESSAGE: NOT ENOUGH CREDIT
+      message.status = "NO CREDIT";
+      addToProcessedQueue(message);
+    }
+  });
 };

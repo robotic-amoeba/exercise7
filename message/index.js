@@ -34,7 +34,7 @@ const messageSchema = {
   }
 };
 
-const requestWorker = require("./src/worker");
+const payedReqWorker = require("./src/controllers/payedReqWorker");
 
 app.post("/messages", bodyParser.json(), validate({ body: messageSchema }), requestQueue);
 

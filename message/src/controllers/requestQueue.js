@@ -8,7 +8,6 @@ const saveMessage = require("../clients/saveMessage");
 module.exports = (req, res) => {
   const httpbody = req.body;
   httpbody.requestID = uuidv1();
-  debug("algo")
   saveMessage(
     {
       ...httpbody,
@@ -23,7 +22,7 @@ module.exports = (req, res) => {
   requestsQueue
     .add(httpbody)
     .then(job => {
-      debug("created a job: ", job);
+      debug("created a job succesfully");
       res
         .status(200)
         .send(

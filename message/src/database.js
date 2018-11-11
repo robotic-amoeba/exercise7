@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
+const debug = require("debug")("debug:database");
 
 const servers = {
   //primary: "exercise5_mongodb_1:27018",
   //replica: "exercise5_replica_1:27019"
-   primary: "127.0.0.1:27018",
-   replica: "127.0.0.1:27019"
+  primary: "127.0.0.1:27018",
+  replica: "127.0.0.1:27019"
 };
 const database = "cabify_bootcamp";
 
@@ -57,7 +58,7 @@ module.exports = {
       console.log("Requested connection:", dbKey);
       console.log("Found:", conn.name);
     }
-    debugger;
+    debug("requested the dbKey");
     return conn.conn;
   },
 

@@ -1,10 +1,11 @@
 const Message = require("../models/message");
 const saveMessageTransaction = require("../transactions/saveMessage");
+const debug = require("debug")("debug:saveMessage");
 
 module.exports = function(messageParams, cb) {
-  console.log("save message params: ", messageParams);
-  saveMessageTransaction(messageParams, (undefined, error) => {
+  debug("save message params: ", messageParams);
+  return saveMessageTransaction(messageParams, (undefined, error) => {
     console.log(error);
   });
-  return message;
+
 };
