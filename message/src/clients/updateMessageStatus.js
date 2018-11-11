@@ -1,15 +1,11 @@
 const Message = require("../models/message");
-const updateCreditTransaction = require("../transactions/updateCredit");
-const saveMessageTransaction = require("../transactions/saveMessage");
-
-debugger;
+const debug = require("debug")("debug:updateMessageStatus");
 
 module.exports = function(requestID, status, cb) {
-  console.log("entraaaa")
   return Message()
     .findOneAndUpdate({ requestID }, { status }, { new: true })
     .then(message => {
-      console.log("Updated message status to :", message.status);
+      debug("Updated message status to :", message.status);
     })
     .catch(error => {
       cb(null, error);

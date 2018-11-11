@@ -45,7 +45,7 @@ function saveMessageTransaction(newValue) {
 
 module.exports = function(messageParams, cb) {
   saveMessageTransaction(messageParams)
-    .then(() => cb())
+    .then()
     .catch(err => {
       cb(undefined, err);
     });

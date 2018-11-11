@@ -3,7 +3,7 @@ const saveMessageTransaction = require("../transactions/saveMessage");
 const debug = require("debug")("debug:saveMessage");
 
 module.exports = function(messageParams, cb) {
-  debug("save message params: ", messageParams);
+  debug("Saved message: ", messageParams);
   return saveMessageTransaction(messageParams, (undefined, error) => {
     console.log(error);
   });
