@@ -1,68 +1,68 @@
-const http = require("http");
 const saveMessage = require("./saveMessage");
 const debug = require("debug")("debug:sendMessage");
-const retryPolicy = require("./retryPolicy");
-const random = n => Math.floor(Math.random() * Math.floor(n));
+const axios = require("axios");
+const messageAPP = axios.create({
+  //baseURL: "http://messageapp:3000",
+  baseURL: "http://localhost:3000",
+  timeout: 3000
+});
+//const rollBackPolicy = require()
+
+function requestToMessageAPP(message) {
+  messageAPP
+    .post("/message", message)
+    .then(response => {
+      debug("Success sending the message: Response: ", response.data);
+      message.status = "OK";
+      saveMessage(message);
+    })
+    .catch(error => {
+      let customError;
+      if (error.response || error.request) {
+        debug("Error in messageapp");
+        message.status = "ERROR";
+        saveMessage(message);
+        retryPolicy(5, message);
+
+        if (error.code && error.code === "ECONNABORTED") {
+          debug("Timeout Exceeded!");
+          message.status = "TIMEOUT";
+          saveMessage(message);
+          //we don't retry here, but we could (different policies)
+        }
+      } else {
+        debug("Error in HTTP request");
+        message.status = "ERROR";
+        saveMessage(message);
+        retryPolicy(5, message);
+      }
+    });
+}
+
+function retryPolicy(retries, message) {
+  let fatalErrorsCount = 0;
+  if (retries > 0) {
+    //timeout increases with every retry up to 15s
+    debug(`Messageapp communication failed: retrying in ${Math.floor(15000 / retries)} seconds`);
+    setTimeout(requestToMessageAPP(message), Math.floor(15000 / retries));
+  } else {
+    debug("Fatal error after 5 retries. Returning cash to account");
+    fatalErrorsCount++;
+    rollBackPolicy(message);
+    if (fatalErrorsCount === 10) {
+      console.log("10 fatal errors occurred. Could be nothing, but check Messageapp");
+    }
+  }
+}
 
 module.exports = function(messageReq) {
-  //CHECK IF PAYED
   const message = {
     destination: messageReq.destination,
     body: messageReq.body
   };
-  console.log("---------------------_", message)
-  const messageToSend = JSON.stringify(message);
-
-  if (true || (messageReq.status = "PAYED")) {
-    const postOptions = {
-      // host: "exercise6_messageapp_1",
-      //host: "messageapp",
-      host: "localhost",
-      port: 3000,
-      path: "/message",
-      method: "post",
-      json: true,
-      headers: {
-        "Content-Type": "application/json",
-        "Content-Length": Buffer.byteLength(messageToSend)
-      }
-    };
-
-    let postReq = http.request(postOptions);
-
-    debug("HTTP request send: ", postOptions);
-
-    postReq.on("response", postRes => {
-      if (postRes.statusCode === 200) {
-        debug("Success sending the message");
-        messageReq.status = "OK";
-        saveMessage(messageReq);
-      } else {
-        debug("Error while sending message");
-        messageReq.status = "ERROR";
-        saveMessage(messageReq);
-        retryPolicy(message);
-      }
-    });
-
-    postReq.setTimeout(random(6000));
-
-    postReq.on("timeout", () => {
-      debug("Timeout Exceeded!");
-      postReq.abort();
-      messageReq.status = "TIMEOUT";
-      saveMessage(messageReq);
-      retryPolicy(message);
-    });
-
-    postReq.on("error", () => {
-      debug("Error in HTTP request");
-      messageReq.status = "ERROR";
-      saveMessage(messageReq);
-      retryPolicy(message);
-    });
-
-    postReq.write(body);
-    postReq.end();
+  if (messageReq.status === "PAYED") {
+    requestToMessageAPP(message);
+  } else {
+    saveMessage(messageReq);
   }
 };
